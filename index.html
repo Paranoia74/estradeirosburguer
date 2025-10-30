@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estrideiros Burger — Painel</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="assets/logo.jpg">
+  <!-- Firebase v10 modular (served via CDN) -->
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/logo.jpg" alt="Estradeiros Burger" />
+      <div>
+        <h1>Estradeiros Burger</h1>
+        <small>Operação • Kanban • Fichas Técnicas • Custos</small>
+      </div>
+    </div>
+    <nav class="topnav">
+      <button id="btnSync" title="Forçar sincronização">↻ Sync</button>
+      <span id="authState">Desconectado</span>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <a href="#/dashboard" class="nav-link">📊 Dashboard</a>
+      <a href="#/kanban" class="nav-link">🗂️ Kanban</a>
+      <a href="#/ingredientes" class="nav-link">🥬 Ingredientes</a>
+      <a href="#/receitas" class="nav-link">🍔 Fichas Técnicas</a>
+      <a href="#/custos" class="nav-link">💸 Custos & Preços</a>
+      <a href="#/sobre" class="nav-link">ℹ️ Sobre</a>
+    </aside>
+
+    <main id="view" class="view">
+      <!-- conteúdo trocado pelo roteador simples -->
+    </main>
+  </div>
+
+  <!-- Modais -->
+  <dialog id="modal">
+    <form method="dialog">
+      <h3 id="modalTitle"></h3>
+      <div id="modalBody"></div>
+      <menu>
+        <button value="cancel">Cancelar</button>
+        <button id="modalConfirm" value="confirm" class="primary">Salvar</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <!-- Seed (opcional) -->
+  <script type="module" src="seed.js"></script>
+</body>
+</html>
