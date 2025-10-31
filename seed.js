@@ -1,15 +1,12 @@
-// Seed de dados — exporta runSeed(force)
-import {
-  getFirestore, collection, getDocs, addDoc
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import {
-  initializeApp, getApps, getApp
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { initializeApp, getApps, getApp } 
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, collection, getDocs, addDoc } 
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { firebaseConfig } from './firebase-config.js';
 
-// ⚠️ Usa o app já existente (evita erro de "app already exists")
+// pega o app existente se já foi iniciado pelo app.js
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db  = getFirestore(app);
 
 // LOG para ajudar a depurar
 console.log('[SEED] pronto para popular…');
