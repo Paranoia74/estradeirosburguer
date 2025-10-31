@@ -1,5 +1,5 @@
-// Configuração do Firebase — Estradeiros Burguer
-export const firebaseConfig = {
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
   apiKey: "AIzaSyDq38IlKl5VTE9Ob5Enr___2NQ9e2wIJOY",
   authDomain: "estradeiro-burguer.firebaseapp.com",
   projectId: "estradeiro-burguer",
