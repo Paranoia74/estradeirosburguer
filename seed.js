@@ -1,29 +1,9 @@
-// Estradeiros Burguer — seed completo (tarefas + ingredientes + fichas técnicas)
-// Cardápio oficial (6): Cheeseburguer, Cheddar Bacon, Clássico Suíno, Veggie da Estrada,
-// Frango Crispy, Marguerito (sem Smash, sem Costela, sem Special)
-
-import {
-  initializeApp,
-  getApps,
-  getApp
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  addDoc,
-  setDoc,
-  doc,
-  query,
-  where
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
+import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, collection, getDocs, addDoc, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { firebaseConfig } from './firebase-config.js';
 
-// Reutiliza app já iniciado
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const db = getFirestore(app);
 
 // ----------------- helpers -----------------
 async function upsertByName(colName, item) {
