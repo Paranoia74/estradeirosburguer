@@ -1,8 +1,10 @@
+// Configuração do Firebase — Estradeiros Burguer
 export const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
+  apiKey: "AIzaSyDq38IlKl5VTE9Ob5Enr___2NQ9e2wIJOY",
   authDomain: "estradeiro-burguer.firebaseapp.com",
   projectId: "estradeiro-burguer",
-  storageBucket: "estradeiro-burguer.appspot.com",
-  messagingSenderId: "XXXXXXXXXXXX",
-  appId: "1:XXXXXXXXXXXX:web:XXXXXXXXXXXX",
+  storageBucket: "estradeiro-burguer.firebasestorage.app",
+  messagingSenderId: "463453759377",
+  appId: "1:463453759377:web:90c0cea2b8267acaf81c30",
+  measurementId: "G-S2GES525TF"
 };
