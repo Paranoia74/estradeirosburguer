@@ -1,79 +1,39 @@
-/* Minimal, clean, dark-ish theme with green accents to match the logo */
-:root{
-  --bg: #0c1512;
-  --panel: #111c18;
-  --muted: #98a29b;
-  --text: #f2f5f3;
-  --accent: #2ecc71;
-  --accent-2: #f39c12;
-  --danger: #e74c3c;
-  --shadow: rgba(0,0,0,.25);
-}
-
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; background:var(--bg); color:var(--text);
-  font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji','Segoe UI Emoji';
-}
-
-.topbar{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 16px; background:var(--panel);
-  border-bottom:1px solid #0b120f; box-shadow:0 2px 8px var(--shadow);
-}
-.brand{display:flex; align-items:center; gap:12px}
-.brand img{width:42px; height:42px; border-radius:6px; object-fit:cover}
-.brand h1{margin:0; font-size:18px}
+/* Tema */
+:root{--bg:#0c1512;--panel:#111c18;--muted:#98a29b;--text:#f2f5f3;--accent:#2ecc71;--danger:#e74c3c;--shadow:rgba(0,0,0,.25)}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--panel);border-bottom:1px solid #0b120f;box-shadow:0 2px 8px var(--shadow)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:42px;height:42px;border-radius:8px;object-fit:cover}
+.brand h1{margin:0;font-size:18px}
 .brand small{color:var(--muted)}
-
-.topnav{display:flex; align-items:center; gap:12px}
-.topnav button{background:#193b2f; color:var(--text); border:1px solid #274d40; padding:6px 10px; border-radius:6px; cursor:pointer}
-.topnav button:hover{filter:brightness(1.1)}
-
-.layout{display:grid; grid-template-columns: 240px 1fr; min-height:calc(100vh - 64px)}
-.sidebar{background:var(--panel); border-right:1px solid #0b120f; padding:12px; display:flex; flex-direction:column; gap:8px}
-.nav-link{display:block; padding:10px 12px; border-radius:8px; color:var(--text); text-decoration:none}
-.nav-link:hover, .nav-link.active{background:#16211d}
-
+.topnav{display:flex;align-items:center;gap:12px}
+.topnav button{background:#193b2f;color:var(--text);border:1px solid #274d40;padding:6px 10px;border-radius:6px;cursor:pointer}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 64px)}
+.sidebar{background:var(--panel);border-right:1px solid #0b120f;padding:12px;display:flex;flex-direction:column;gap:8px}
+.nav-link{display:block;padding:10px 12px;border-radius:8px;color:var(--text);text-decoration:none}
+.nav-link:hover,.nav-link.active{background:#16211d}
 .view{padding:18px}
-
-.card{
-  background:#0f1916; border:1px solid #0b120f; border-radius:12px; padding:16px; box-shadow: 0 2px 8px var(--shadow); margin-bottom:16px;
-}
-
-.grid{display:grid; gap:16px}
-.grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{background:#0f1916;border:1px solid #0b120f;border-radius:12px;padding:16px;box-shadow:0 2px 8px var(--shadow);margin-bottom:16px}
+.grid{display:grid;gap:16px}
 .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-@media(max-width:900px){ .layout{grid-template-columns:1fr} .grid.cols-2, .grid.cols-3{grid-template-columns:1fr} }
-
-.table{width:100%; border-collapse:collapse}
-.table th,.table td{padding:10px; border-bottom:1px solid #1b2923}
-.table th{color:#cdd5cf; text-align:left}
-
-.btn{background:#1a3a2e; color:var(--text); border:1px solid #26483b; padding:8px 12px; border-radius:8px; cursor:pointer}
-.btn:hover{filter:brightness(1.1)}
-.btn.danger{background:#3a1a1a; border-color:#572525}
-.btn.ghost{background:transparent; border-color:#274d40}
-.badge{padding:2px 8px; border-radius:999px; font-size:12px}
-.badge.todo{background:#2c3e50}
-.badge.doing{background:#8e44ad}
-.badge.done{background:#2e7d32}
-
-.kanban{display:grid; gap:16px; grid-template-columns:repeat(3,minmax(0,1fr))}
-.column{background:#0f1916; border:1px dashed #244338; border-radius:12px; padding:10px; min-height:300px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.grid.cols-3{grid-template-columns:1fr}}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:10px;border-bottom:1px solid #1b2923;text-align:left}
+.btn{background:#1a3a2e;color:var(--text);border:1px solid #26483b;padding:8px 12px;border-radius:8px;cursor:pointer}
+.btn:hover{filter:brightness(1.06)} .btn.ghost{background:transparent}
+.btn.danger{background:#3a1a1a;border-color:#572525}
+.kanban{display:grid;gap:16px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.column{background:#0f1916;border:1px dashed #244338;border-radius:12px;padding:10px;min-height:300px}
 .column h3{margin:4px 8px 10px}
-.task{background:#132520; border:1px solid #1b3a30; border-radius:10px; padding:10px; margin:8px; cursor:grab}
-.task:active{cursor:grabbing}
-.task .meta{color:var(--muted); font-size:12px; display:flex; justify-content:space-between}
-
-dialog{border:none; border-radius:12px; padding:0; overflow:hidden}
-dialog::backdrop{background:rgba(0,0,0,.5)}
-dialog form{background:#0f1916; padding:0; margin:0; min-width:320px}
-dialog h3{margin:0; padding:12px 16px; border-bottom:1px solid #1b2923}
-dialog #modalBody{padding:16px}
-dialog menu{display:flex; gap:12px; justify-content:flex-end; padding:12px 16px; margin:0; border-top:1px solid #1b2923}
-input, select, textarea{width:100%; padding:10px; background:#0d1714; color:var(--text); border:1px solid #1b2923; border-radius:8px}
-label{display:block; margin-bottom:10px}
-.primary{background:var(--accent); color:#0c1512; border:0}
-.small{font-size:12px; color:var(--muted)}
+.task{background:#132520;border:1px solid #1b3a30;border-radius:10px;padding:10px;margin:8px;cursor:grab}
+.task .meta{color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
+/* Splash */
+#splash{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,#0c1512 0%,#0a120f 100%);z-index:9999;transition:opacity .5s,visibility .5s}
+#splash.hide{opacity:0;visibility:hidden}
+.splash-inner{display:flex;flex-direction:column;align-items:center;gap:10px}
+.splash-logo{width:140px;height:140px;border-radius:18px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.splash-title{font-size:22px;font-weight:700;margin-top:6px}
+.splash-sub{color:var(--muted)}
+.splash-spinner{width:38px;height:38px;border-radius:50%;border:4px solid rgba(255,255,255,.1);border-top-color:var(--accent);animation:spin 1s linear infinite;margin-top:6px}
+@keyframes spin{to{transform:rotate(360deg)}}

@@ -3,18 +3,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Estrideiros Burger — Painel</title>
+  <title>Estradeiros Burguer — Painel</title>
+  <meta name="theme-color" content="#0c1512"/>
+  <link rel="icon" href="assets/icon-180.png">
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="assets/logo.jpg">
-  <!-- Firebase v10 modular (served via CDN) -->
+  <script>window.__EB_READY__ = false;</script>
   <script type="module" src="app.js"></script>
 </head>
 <body>
+  <div id="splash">
+    <div class="splash-inner">
+      <img src="assets/logo.png" alt="Estradeiros Burguer" class="splash-logo" />
+      <div class="splash-title">Estradeiros Burguer</div>
+      <div class="splash-sub">Aquecendo a chapa...</div>
+      <div class="splash-spinner"></div>
+    </div>
+  </div>
+
   <header class="topbar">
     <div class="brand">
-      <img src="assets/logo.jpg" alt="Estradeiros Burger" />
+      <img src="assets/logo.png" alt="Estradeiros Burguer" />
       <div>
-        <h1>Estradeiros Burger</h1>
+        <h1>Estradeiros Burguer</h1>
         <small>Operação • Kanban • Fichas Técnicas • Custos</small>
       </div>
     </div>
@@ -34,12 +44,9 @@
       <a href="#/sobre" class="nav-link">ℹ️ Sobre</a>
     </aside>
 
-    <main id="view" class="view">
-      <!-- conteúdo trocado pelo roteador simples -->
-    </main>
+    <main id="view" class="view"></main>
   </div>
 
-  <!-- Modais -->
   <dialog id="modal">
     <form method="dialog">
       <h3 id="modalTitle"></h3>
@@ -51,7 +58,12 @@
     </form>
   </dialog>
 
-  <!-- Seed (opcional) -->
   <script type="module" src="seed.js"></script>
+
+  <script>
+    const closeSplash = () => { const s=document.getElementById('splash'); if(s) s.classList.add('hide'); };
+    document.addEventListener('eb:ready', closeSplash);
+    setTimeout(closeSplash, 3200);
+  </script>
 </body>
 </html>
