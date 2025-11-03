@@ -3,57 +3,76 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Estradeiros • Seed Runner</title>
+  <title>Estradeiros • Seed Runner (compat)</title>
   <style>
     body{background:#0f1a17;color:#e6f2ef;font:16px/1.5 system-ui,Segoe UI,Roboto,Arial}
     .wrap{max-width:920px;margin:40px auto;padding:24px;border:1px solid #20403a;border-radius:12px;background:#0b1513}
     h1{margin:0 0 12px;font-size:22px}
     button{background:#0ea56a;color:#06120f;border:0;padding:12px 16px;border-radius:8px;font-weight:700;cursor:pointer}
     button:disabled{opacity:.6;cursor:not-allowed}
-    pre{background:#07110e;border:1px solid #18312c;padding:12px;border-radius:8px;white-space:pre-wrap}
+    pre{background:#07110e;border:1px solid #18312c;padding:12px;border-radius:8px;white-space:pre-wrap;min-height:120px}
     .ok{color:#24d08a}.err{color:#ff6b6b}
   </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Estradeiros Burger — Seed Runner</h1>
-  <p>Use este botão para popular <b>Ingredientes</b>, <b>Tarefas</b> e <b>Fichas Técnicas</b> no Firestore, sem precisar do Console.</p>
-  <p><button id="run">Rodar seed agora</button> <span id="status"></span></p>
+  <p>Popula <b>Ingredientes</b>, <b>Tarefas</b> e <b>Fichas Técnicas</b> no Firestore.</p>
+  <p>
+    <button id="run" onclick="runSeed()">Rodar seed agora</button>
+    <span id="status"></span>
+  </p>
   <pre id="log">Pronto.</pre>
 </div>
 
-<script type="module">
+<!-- Firebase compat (sem modules) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<!-- Traz sua config; precisa ter window.__FBCFG (ver passo 1) -->
+<script type="module" src="./firebase-config.js"></script>
+
+<script>
+(function(){
   const logEl = document.getElementById('log');
   const statusEl = document.getElementById('status');
-  const runBtn = document.getElementById('run');
+  const btn = document.getElementById('run');
   const log = (m, cls) => {
-    if(cls) statusEl.className = cls, statusEl.textContent = m;
-    else logEl.textContent += "\\n" + m;
+    if (cls) { statusEl.className = cls; statusEl.textContent = m; }
+    else { logEl.textContent += "\n" + m; }
   };
 
-  runBtn.addEventListener('click', runSeed);
-
-  async function runSeed(){
+  // expõe função global para o onclick inline
+  window.runSeed = async function runSeed(){
     try{
-      runBtn.disabled = true; statusEl.textContent = ""; logEl.textContent = "Iniciando...";
-      // 1) Firebase + long polling
-      const appMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-      const fsMod  = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-      const cfg    = await import('./firebase-config.js');
+      btn.disabled = true; statusEl.textContent=""; logEl.textContent="Iniciando...";
 
-      const app = appMod.getApps().length ? appMod.getApp() : appMod.initializeApp(cfg.firebaseConfig);
-      try{ const oldDb = fsMod.getFirestore(app); await fsMod.terminate(oldDb); }catch(e){}
-      const db  = fsMod.initializeFirestore(app, { experimentalForceLongPolling:true, useFetchStreams:false });
-      await fsMod.enableNetwork(db);
-      log("Conexão Firebase OK (long-polling).");
+      if (!window.__FBCFG) {
+        log("ERRO: firebase-config.js não expôs window.__FBCFG", "err");
+        log("Abra firebase-config.js e adicione: if (typeof window !== 'undefined') window.__FBCFG = firebaseConfig;", "err");
+        btn.disabled = false; return;
+      }
 
-      // 2) helpers
+      // Inicializa Firebase (compat) + força long-polling
+      firebase.initializeApp(window.__FBCFG);
+      const db = firebase.firestore();
+      db._delegate._settingsMergeDeep({ experimentalForceLongPolling: true, useFetchStreams: false });
+
+      log("Firebase conectando (long-polling)...");
+      await db.enableNetwork();
+      log("Conexão OK.");
+
       const slug = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-        .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,200);
-      const upsert = (col,id,data) => fsMod.setDoc(fsMod.doc(db,col,id), data, {merge:true});
-      const getCount = async c => (await fsMod.getDocs(fsMod.collection(db,c))).size;
+                        .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,200);
 
-      // 3) dados
+      async function upsert(col, id, data){
+        await db.collection(col).doc(id).set(data, { merge:true });
+      }
+      async function count(col){
+        const snap = await db.collection(col).get();
+        return snap.size;
+      }
+
       const ingredientes = [
         { name:'Pão brioche 80g', unit:'un', unitCost:1.90 },
         { name:'Pão de batata 80g', unit:'un', unitCost:2.00 },
@@ -163,14 +182,13 @@
         }
       ];
 
-      // 4) upserts
       log("Inserindo ingredientes...");
       for (const ing of ingredientes) await upsert('ingredients', slug(ing.name), ing);
       log("Ingredientes ok.");
 
       log("Inserindo tarefas...");
       for (let i=0;i<tarefas.length;i++){
-        const title=tarefas[i];
+        const title = tarefas[i];
         const status = (i%3===0)?'todo':(i%3===1)?'doing':'done';
         await upsert('tasks', slug(title), { title, status, assignee:null, createdAt: Date.now() });
       }
@@ -180,21 +198,18 @@
       for (const r of receitas) await upsert('recipes', slug(r.name), r);
       log("Fichas ok.");
 
-      const [ci,ct,cr] = await Promise.all([getCount('ingredients'),getCount('tasks'),getCount('recipes')]);
+      const [ci,ct,cr] = await Promise.all([count('ingredients'), count('tasks'), count('recipes')]);
       log(SEED OK - ingredients: ${ci} | tasks: ${ct} | recipes: ${cr});
-      log("Pronto! Atualize o app e confira as telas.");
-      log(" ", "ok");
-      statusEl.textContent = "Concluído";
-      statusEl.className = "ok";
+      statusEl.textContent = "Concluído"; statusEl.className = "ok";
     }catch(e){
       console.error(e);
-      log("ERRO: "+ (e && e.message ? e.message : e), "err");
-      statusEl.textContent = "Erro";
-      statusEl.className = "err";
+      statusEl.textContent = "Erro"; statusEl.className = "err";
+      log("ERRO: "+(e && e.message ? e.message : e), "err");
     }finally{
-      runBtn.disabled = false;
+      btn.disabled = false;
     }
-  }
+  };
+})();
 </script>
 </body>
 </html>
