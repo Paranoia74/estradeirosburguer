@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Estradeiros • Seed Runner</title>
+  <style>
+    body{background:#0f1a17;color:#e6f2ef;font:16px/1.5 system-ui,Segoe UI,Roboto,Arial}
+    .wrap{max-width:920px;margin:40px auto;padding:24px;border:1px solid #20403a;border-radius:12px;background:#0b1513}
+    h1{margin:0 0 12px;font-size:22px}
+    button{background:#0ea56a;color:#06120f;border:0;padding:12px 16px;border-radius:8px;font-weight:700;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    pre{background:#07110e;border:1px solid #18312c;padding:12px;border-radius:8px;white-space:pre-wrap}
+    .ok{color:#24d08a}.err{color:#ff6b6b}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Estradeiros Burger — Seed Runner</h1>
+  <p>Use este botão para popular <b>Ingredientes</b>, <b>Tarefas</b> e <b>Fichas Técnicas</b> no Firestore, sem precisar do Console.</p>
+  <p><button id="run">Rodar seed agora</button> <span id="status"></span></p>
+  <pre id="log">Pronto.</pre>
+</div>
+
+<script type="module">
+  const logEl = document.getElementById('log');
+  const statusEl = document.getElementById('status');
+  const runBtn = document.getElementById('run');
+  const log = (m, cls) => {
+    if(cls) statusEl.className = cls, statusEl.textContent = m;
+    else logEl.textContent += "\\n" + m;
+  };
+
+  runBtn.addEventListener('click', runSeed);
+
+  async function runSeed(){
+    try{
+      runBtn.disabled = true; statusEl.textContent = ""; logEl.textContent = "Iniciando...";
+      // 1) Firebase + long polling
+      const appMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+      const fsMod  = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      const cfg    = await import('./firebase-config.js');
+
+      const app = appMod.getApps().length ? appMod.getApp() : appMod.initializeApp(cfg.firebaseConfig);
+      try{ const oldDb = fsMod.getFirestore(app); await fsMod.terminate(oldDb); }catch(e){}
+      const db  = fsMod.initializeFirestore(app, { experimentalForceLongPolling:true, useFetchStreams:false });
+      await fsMod.enableNetwork(db);
+      log("Conexão Firebase OK (long-polling).");
+
+      // 2) helpers
+      const slug = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,200);
+      const upsert = (col,id,data) => fsMod.setDoc(fsMod.doc(db,col,id), data, {merge:true});
+      const getCount = async c => (await fsMod.getDocs(fsMod.collection(db,c))).size;
+
+      // 3) dados
+      const ingredientes = [
+        { name:'Pão brioche 80g', unit:'un', unitCost:1.90 },
+        { name:'Pão de batata 80g', unit:'un', unitCost:2.00 },
+        { name:'Blend bovino 160g', unit:'un', unitCost:5.80 },
+        { name:'Blend suíno 160g (toscana+filé mignon suíno)', unit:'un', unitCost:5.20 },
+        { name:'Frango empanado crispy 140g', unit:'un', unitCost:4.90 },
+        { name:'Hambúrguer soja+beterraba 120g', unit:'un', unitCost:2.40 },
+        { name:'Queijo prato 25g', unit:'un', unitCost:0.95 },
+        { name:'Queijo cheddar 20g', unit:'un', unitCost:0.90 },
+        { name:'Queijo muçarela 25g', unit:'un', unitCost:0.92 },
+        { name:'Queijo minas 25g', unit:'un', unitCost:1.10 },
+        { name:'Maionese da casa 25g', unit:'g',  unitCost:0.035 },
+        { name:'Bacon 30g', unit:'g',  unitCost:0.065 },
+        { name:'Cebola roxa 10g', unit:'g',  unitCost:0.020 },
+        { name:'Tomate 30g', unit:'g',  unitCost:0.018 },
+        { name:'Alface 10g', unit:'g',  unitCost:0.015 },
+        { name:'Picles 10g', unit:'g',  unitCost:0.055 },
+        { name:'Manjericão fresco 5g', unit:'g', unitCost:0.080 },
+        { name:'Azeite extra virgem 5ml', unit:'g', unitCost:0.060 },
+        { name:'Embalagem hambúrguer', unit:'un', unitCost:1.30 }
+      ];
+
+      const tarefas = [
+        'Definir cardápio de estreia','Cadastrar fornecedores (pão, carne, embalagens)','Padronizar gramaturas de todos os lanches',
+        'Definir ficha de limpeza diária','Criar planilha de inventário semanal','Montar check-list de abertura e fechamento',
+        'Testar fluxo de atendimento no caixa','Organizar etiquetas e validade (FEFO)','Treinar equipe no ponto do blend bovino 160g',
+        'Treinar equipe no ponto do blend suíno 160g','Padronizar tempo de fritura do frango crispy','Especificar temperatura da chapa e fritadeira',
+        'Configurar impressora de pedidos','Definir layout de montagem dos lanches','Treinar comunicação de cozinha e caixa',
+        'Preparar lote de maionese da casa (padrão)','Produzir cebola caramelizada (rendimento)','Padronizar corte de tomate e alface',
+        'Testar porcionamento do bacon','Padronizar tostagem do brioche','Avaliar textura do veggie soja+beterraba',
+        'Ajustar blend suíno (toscana + filé mignon)','Revisar uso de queijo minas no Marguerito','Revisar mise en place do Marguerito',
+        'Negociar preço do brioche com panificadora A','Cotação de cheddar com laticínios B','Cotação de picles com fornecedor C',
+        'Negociar embalagens com gráfica D','Definir prazos de entrega e pedido mínimo','Cadastrar prazos de pagamento no financeiro',
+        'Criar identidade visual dos highlights','Fotografar lanches principais','Montar cardápio digital para Instagram',
+        'Definir combo de estreia','Criar campanha Aquecendo a chapa','Configurar Google Meu Negócio',
+        'Ajustar link na bio do Instagram','Criar artes de stories com bastidores',
+        'Definir margem alvo (65%) por produto','Revisar markup mínimo por família',
+        'Calcular preço sugerido do Cheeseburguer','Calcular preço sugerido do Cheddar Bacon','Calcular preço sugerido do Suíno 160g',
+        'Calcular preço sugerido do Veggie','Calcular preço sugerido do Frango Crispy','Calcular preço sugerido do Marguerito',
+        'Treinar padrão de montagem (ordem de camadas)','Treinar saudação e upsell no caixa','Definir tempo alvo de preparo por item',
+        'Montar kit de viagem (delivery)','Padronizar etiquetagem de pedido','Criar roteiro de mise en place diário',
+        'Check-list de temperatura dos equipamentos','Controle de resíduos de óleo','Plano de limpeza semanal (chapa e coifa)',
+        'Pontos críticos de segurança alimentar','Conferir conexão do POS e impressora','Criar usuário para cada atendente',
+        'Backup da planilha de custos','Abrir Instagram @estradeirosburguer','Publicar teaser Vem coisa boa...',
+        'Publicar contagem regressiva da abertura','Responder directs e comentários','Coletar feedback dos 50 primeiros pedidos',
+        'Ajustar produção conforme demanda','Revisar tempos de preparo no pico','Planejar edição 2 do cardápio (sazonal)',
+        'Negociar redução de custo do brioche','Planejar ação com influencers locais'
+      ];
+
+      const receitas = [
+        { name:'Cheeseburguer Estradeiros (bovino)', description:'Brioche, blend bovino 160g, queijo prato e maionese da casa.',
+          items:[
+            {ingredientName:'Pão brioche 80g', qty:1, unit:'un'},
+            {ingredientName:'Blend bovino 160g', qty:1, unit:'un'},
+            {ingredientName:'Queijo prato 25g', qty:1, unit:'un'},
+            {ingredientName:'Maionese da casa 25g', qty:25, unit:'g'},
+            {ingredientName:'Embalagem hambúrguer', qty:1, unit:'un'}
+          ], yieldAmount:1, yieldUnit:'un', overheadPct:0.10, markup:2.6, updatedAt: Date.now()
+        },
+        { name:'Cheddar Bacon', description:'Brioche, blend bovino 160g, cheddar e bacon crocante.',
+          items:[
+            {ingredientName:'Pão brioche 80g', qty:1, unit:'un'},
+            {ingredientName:'Blend bovino 160g', qty:1, unit:'un'},
+            {ingredientName:'Queijo cheddar 20g', qty:1, unit:'un'},
+            {ingredientName:'Bacon 30g', qty:30, unit:'g'},
+            {ingredientName:'Embalagem hambúrguer', qty:1, unit:'un'}
+          ], yieldAmount:1, yieldUnit:'un', overheadPct:0.10, markup:2.6, updatedAt: Date.now()
+        },
+        { name:'Clássico Suíno 160g', description:'Blend suíno (toscana + filé mignon), brioche, prato e maionese.',
+          items:[
+            {ingredientName:'Pão brioche 80g', qty:1, unit:'un'},
+            {ingredientName:'Blend suíno 160g (toscana+filé mignon suíno)', qty:1, unit:'un'},
+            {ingredientName:'Queijo prato 25g', qty:1, unit:'un'},
+            {ingredientName:'Maionese da casa 25g', qty:25, unit:'g'},
+            {ingredientName:'Embalagem hambúrguer', qty:1, unit:'un'}
+          ], yieldAmount:1, yieldUnit:'un', overheadPct:0.10, markup:2.6, updatedAt: Date.now()
+        },
+        { name:'Veggie da Estrada', description:'Soja+beterraba 120g, brioche, cheddar e picles.',
+          items:[
+            {ingredientName:'Pão brioche 80g', qty:1, unit:'un'},
+            {ingredientName:'Hambúrguer soja+beterraba 120g', qty:1, unit:'un'},
+            {ingredientName:'Queijo cheddar 20g', qty:1, unit:'un'},
+            {ingredientName:'Picles 10g', qty:10, unit:'g'},
+            {ingredientName:'Embalagem hambúrguer', qty:1, unit:'un'}
+          ], yieldAmount:1, yieldUnit:'un', overheadPct:0.10, markup:2.6, updatedAt: Date.now()
+        },
+        { name:'Frango Crispy', description:'Pão de batata, frango empanado, maionese da casa, alface e tomate.',
+          items:[
+            {ingredientName:'Pão de batata 80g', qty:1, unit:'un'},
+            {ingredientName:'Frango empanado crispy 140g', qty:1, unit:'un'},
+            {ingredientName:'Maionese da casa 25g', qty:25, unit:'g'},
+            {ingredientName:'Alface 10g', qty:10, unit:'g'},
+            {ingredientName:'Tomate 30g', qty:30, unit:'g'},
+            {ingredientName:'Embalagem hambúrguer', qty:1, unit:'un'}
+          ], yieldAmount:1, yieldUnit:'un', overheadPct:0.10, markup:2.6, updatedAt: Date.now()
+        },
+        { name:'Marguerito', description:'Brioche, blend bovino 160g, queijo minas, tomate, manjericão e azeite.',
+          items:[
+            {ingredientName:'Pão brioche 80g', qty:1, unit:'un'},
+            {ingredientName:'Blend bovino 160g', qty:1, unit:'un'},
+            {ingredientName:'Queijo minas 25g', qty:1, unit:'un'},
+            {ingredientName:'Tomate 30g', qty:30, unit:'g'},
+            {ingredientName:'Manjericão fresco 5g', qty:5, unit:'g'},
+            {ingredientName:'Azeite extra virgem 5ml', qty:5, unit:'g'},
+            {ingredientName:'Embalagem hambúrguer', qty:1, unit:'un'}
+          ], yieldAmount:1, yieldUnit:'un', overheadPct:0.12, markup:2.7, updatedAt: Date.now()
+        }
+      ];
+
+      // 4) upserts
+      log("Inserindo ingredientes...");
+      for (const ing of ingredientes) await upsert('ingredients', slug(ing.name), ing);
+      log("Ingredientes ok.");
+
+      log("Inserindo tarefas...");
+      for (let i=0;i<tarefas.length;i++){
+        const title=tarefas[i];
+        const status = (i%3===0)?'todo':(i%3===1)?'doing':'done';
+        await upsert('tasks', slug(title), { title, status, assignee:null, createdAt: Date.now() });
+      }
+      log("Tarefas ok.");
+
+      log("Inserindo fichas...");
+      for (const r of receitas) await upsert('recipes', slug(r.name), r);
+      log("Fichas ok.");
+
+      const [ci,ct,cr] = await Promise.all([getCount('ingredients'),getCount('tasks'),getCount('recipes')]);
+      log(SEED OK - ingredients: ${ci} | tasks: ${ct} | recipes: ${cr});
+      log("Pronto! Atualize o app e confira as telas.");
+      log(" ", "ok");
+      statusEl.textContent = "Concluído";
+      statusEl.className = "ok";
+    }catch(e){
+      console.error(e);
+      log("ERRO: "+ (e && e.message ? e.message : e), "err");
+      statusEl.textContent = "Erro";
+      statusEl.className = "err";
+    }finally{
+      runBtn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
