@@ -10,4 +10,4 @@ const firebaseConfig = {
   appId: "1:464354375977:web:e15565a50e8205144ff61c30",
    measurementId: "G-H5EFQKWJC7"
 };
-
+if (typeof window !== 'undefined') window._FBCFB = firebaseConfig;
