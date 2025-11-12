@@ -2,67 +2,120 @@
 <html lang="pt-br">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Estradeiros Burguer — Painel</title>
-  <meta name="theme-color" content="#0c1512"/>
-  <link rel="icon" href="assets/icon-180.png">
-  <link rel="stylesheet" href="styles.css" />
-  <script>window.__EB_READY__ = false;</script>
-  <script src="app.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Estradeiros Burguer</title>
+  <style>
+    body {
+      background: #0f1417;
+      color: #e6f2ef;
+      font: 16px/1.5 'Segoe UI', Roboto, Arial, sans-serif;
+      margin: 0;
+      overflow: hidden;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1b2224;
+      padding: 12px 24px;
+      border-bottom: 1px solid #222;
+    }
+    header h1 {
+      font-size: 20px;
+      margin: 0;
+      color: #36d98e;
+    }
+    header .right {
+      font-size: 14px;
+    }
+    header .conn-text {
+      color: #f66;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    header .conn-text.ok {
+      color: #4ae;
+    }
+    aside {
+      width: 220px;
+      background: #111516;
+      height: calc(100vh - 52px);
+      float: left;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    main {
+      margin-left: 220px;
+      padding: 16px;
+    }
+    nav a {
+      display: block;
+      padding: 8px 12px;
+      color: #9fd;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+    nav a:hover {
+      background: #223;
+    }
+    #splash {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #0f1417;
+      color: #9fd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    #splash.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
-  <div id="splash">
-    <div class="splash-inner">
-      <img src="assets/logo.png" alt="Estradeiros Burguer" class="splash-logo" />
-      <div class="splash-title">Estradeiros Burguer</div>
-      <div class="splash-sub">Aquecendo a chapa...</div>
-      <div class="splash-spinner"></div>
-    </div>
-  </div>
+  <div id="splash">🔥 Aquecendo a chapa...</div>
 
-  <header class="topbar">
-    <div class="brand">
-      <img src="assets/logo.png" alt="Estradeiros Burguer" />
-      <div>
-        <h1>Estradeiros Burguer</h1>
-        <small>Operação • Kanban • Fichas Técnicas • Custos</small>
-      </div>
+  <header>
+    <h1>Estradeiros Burguer</h1>
+    <div class="right">
+      Status:
+      <span class="conn-text">Desconectado</span>
     </div>
-    <nav class="topnav">
-      <button id="btnSync" title="Forçar sincronização">↻ Sync</button>
-      <span id="authState">Desconectado</span>
-    </nav>
   </header>
 
-  <div class="layout">
-    <aside class="sidebar">
-      <a href="#/dashboard" class="nav-link">📊 Dashboard</a>
-      <a href="#/kanban" class="nav-link">🗂️ Kanban</a>
-      <a href="#/ingredientes" class="nav-link">🥬 Ingredientes</a>
-      <a href="#/receitas" class="nav-link">🍔 Fichas Técnicas</a>
-      <a href="#/custos" class="nav-link">💸 Custos & Preços</a>
-      <a href="#/sobre" class="nav-link">ℹ️ Sobre</a>
-    </aside>
+  <aside>
+    <nav>
+      <a href="#/dashboard">📊 Dashboard</a>
+      <a href="#/kanban">🗂️ Kanban</a>
+      <a href="#/ingredientes">🥬 Ingredientes</a>
+      <a href="#/receitas">📖 Fichas Técnicas</a>
+      <a href="#/custos">💰 Custos & Preços</a>
+      <a href="#/sobre">ℹ️ Sobre</a>
+    </nav>
+  </aside>
 
-    <main id="view" class="view"></main>
-  </div>
+  <main id="view">
+    <h2>Carregando...</h2>
+  </main>
 
-  <dialog id="modal">
-    <form method="dialog">
-      <h3 id="modalTitle"></h3>
-      <div id="modalBody"></div>
-      <menu>
-        <button value="cancel">Cancelar</button>
-        <button id="modalConfirm" value="confirm" class="primary">Salvar</button>
-      </menu>
-    </form>
-  </dialog>
+  <!-- Firebase config e app -->
+  <script src="./firebase-config.js?v=5"></script>
+  <script src="./app.js?v=5"></script>
 
-  <script src="seed.js"></script>
-
+  <!-- Splash -->
   <script>
-    const closeSplash = () => { const s=document.getElementById('splash'); if(s) s.classList.add('hide'); };
-    document.addEventListener('eb:ready', closeSplash);
+    const closeSplash = () => {
+      const s = document.getElementById('splash');
+      if (s) s.classList.add('hide');
+    };
+    document.addEventListener('cb:ready', closeSplash);
     setTimeout(closeSplash, 3200);
   </script>
 </body>
